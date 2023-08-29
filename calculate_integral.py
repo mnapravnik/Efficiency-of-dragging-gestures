@@ -1,11 +1,12 @@
-from curve_functions import *
+from analysis.curve_functions import *
 import os
 import json
 import sympy as sp
 import numpy as np
 import math
-import display_properties
+import analysis.display_properties as display_properties
 import pandas as pd
+import matplotlib.pyplot as plt
 
 fp = FunctionProvider()
 x = sp.Symbol("x")
@@ -15,10 +16,9 @@ FUNC_IDS = [0, 1, 2, 3, 4, 5]
 DEVICES = ['Mouse', 'Graphic tablet']
 TEST_MODES = [0, 1]
 
-
 x0 = 0
 x1 = 2  * math.pi
-N = 10000
+N = 2000
 
 def calculate_index_of_difficulty_integral():
     integrals_approx = {}
@@ -28,7 +28,7 @@ def calculate_index_of_difficulty_integral():
             tasks_num = len(fp.function_array[test][difficulty])
             for task in range(tasks_num):
                 function_id = tasks_num * difficulty + task
-                print("########## Test mode:", test + 1, "; Difficlty:", difficulty + 1, "; Task:", task + 1)
+                print("########## Test mode:", test, "; Fuction ID", function_id, " Difficlty:", difficulty, "; Task:", task)
                 kappa = fp.get_function_curvature(difficulty, task, test)
                 length = fp.get_function_length(difficulty, task, test)
 
@@ -49,11 +49,11 @@ def calculate_index_of_difficulty_integral():
                     alpha *= display_properties.POLAR_UNIT_LENGTH_IN_INCH
 
                 # alpha = display_properties.LINEWIDTH_IN_INCH
-                length = sp.lambdify(x, length, "numpy")
-                length = calculate_riemann_integral(length, x0, x1, N)
+                # length = sp.lambdify(x, length, "numpy")
+                # length = calculate_riemann_integral(length, x0, x1, N)
 
-                kappa = sp.lambdify(x, kappa, "numpy")
-                kappa = calculate_riemann_integral(kappa, x0, x1, N)
+                # kappa = sp.lambdify(x, kappa, "numpy")
+                # kappa = calculate_riemann_integral(kappa, x0, x1, N)
 
                 # index_of_difficulty = sp.log((length + kappa) + 1, 2)
                 # index_of_difficulty = kappa
@@ -61,7 +61,41 @@ def calculate_index_of_difficulty_integral():
                 # index_of_difficulty = sp.log(kappa * display_properties.LINEWIDTH_IN_INCH / length + 1, 2)
                 # index_of_difficulty = length / display_properties.LINEWIDTH_IN_INCH + kappa
                 # index_of_difficulty = np.log2(length / alpha + kappa + 1)
-                index_of_difficulty = length / alpha + kappa
+                # index_of_difficulty = length / alpha + kappa
+
+                # this below is taken from the paper "Modeling user performance on Curved Constrained Paths"
+                radius = 1 / (1+ np.abs(kappa))
+
+                # here below, as IOD, use something from the paper "Modeling Pen Steering Performance
+                # in a Single Constant-Width Curved Path"
+                index_of_difficulty = length / (radius**(1/3))
+
+                # plot IOD and original func side by side to see which parts of the func
+                # have higher IOD
+                orig_func = fp.provide_function(difficulty, task, test_index=test)
+                print(index_of_difficulty)
+                print('Original', orig_func)
+                if is_cartesian(test):
+                    # fig, axis = plt.subplots(2, 1)
+                    fig = plt.figure()
+                    axis = fig.gca()
+                else:
+                    fig, axis = plt.subplots(1, 1, subplot_kw={'projection': 'polar'})
+                x_for_plot = np.linspace(x0, x1, N)
+                y1 = fp.calculate_y(lambda: index_of_difficulty, x_for_plot)
+                y2 = fp.calculate_y(lambda: orig_func, x_for_plot)
+                # y1 = (y1 - np.min(y1)) / np.max(y1)
+                y2 = (y2 - np.min(y2)) / np.max(y2)
+                y2 *= 10
+                axis.plot(x_for_plot, y2, label='original')
+                axis.plot(x_for_plot, y1, label='iod')
+                # axis.set_ylim([-0.5, 14.5])
+                axis.legend()
+                fig.savefig(f'{test}-{function_id}.png')
+                plt.close(fig)
+
+                index_of_difficulty = sp.lambdify(x, index_of_difficulty, "numpy")
+                index_of_difficulty = calculate_riemann_integral(index_of_difficulty, x0, x1, N)
                 # index_of_difficulty = length / alpha
                 # index_of_difficulty = alpha  # alpha is 'w'
                 print(index_of_difficulty)
@@ -76,7 +110,7 @@ def calculate_index_of_difficulty_integral():
     # file = open("analysis/index_of_difficulty-log(kappa*w:length+1).json", "w")
     # file = open("analysis/index_of_difficulty-length:w+kappa.json", "w")
     # file = open("analysis/index_of_difficulty-log(length:alpha+kappa+1).json", "w")
-    file = open("analysis/index_of_difficulty-length:alpha+kappa.json", "w")
+    file = open("analysis/index_of_difficulty-tmp.json", "w")
     # file = open("analysis/index_of_difficulty-length:alpha.json", "w")
     # file = open("analysis/index_of_difficulty-w.json", "w")
     file.write(json.dumps(integrals_approx, sort_keys=True, indent=4))
