@@ -110,7 +110,7 @@ def calculate_index_of_difficulty_integral():
     # file = open("analysis/index_of_difficulty-log(kappa*w:length+1).json", "w")
     # file = open("analysis/index_of_difficulty-length:w+kappa.json", "w")
     # file = open("analysis/index_of_difficulty-log(length:alpha+kappa+1).json", "w")
-    file = open("analysis/index_of_difficulty-tmp.json", "w")
+    file = open("analysis/iods/index_of_difficulty-tmp.json", "w")
     # file = open("analysis/index_of_difficulty-length:alpha.json", "w")
     # file = open("analysis/index_of_difficulty-w.json", "w")
     file.write(json.dumps(integrals_approx, sort_keys=True, indent=4))
