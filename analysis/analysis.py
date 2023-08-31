@@ -31,10 +31,10 @@ class Analysis:
     MIN_AVG_DRAW_TIME: float
 
 
-    def __init__(self, args: AnalysisArgs) -> None:
+    def __init__(self, args: AnalysisArgs, logs: Logs = None) -> None:
         self._a = args
         self._iod = IodHandler(args)
-        self._dt = DrawingTimesHandler(args=args)
+        self._dt = DrawingTimesHandler(args=args, logs=logs)
 
         # for plot xy ranges
         self.MAX_AVG_DRAW_TIME = round(max(self.getAvgsByFilter(self._a.PROJECTIONS, self._a.FUNC_IDS, self._a.DEVICES, self._a.TEST_MODES)[0]))

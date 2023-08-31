@@ -1,5 +1,6 @@
 import typing
 import json
+from typing import Any
 import pandas as pd
 
 
@@ -37,7 +38,23 @@ class AnalysisArgs:
 
 class Logs:
     df: pd.DataFrame
-    """This dataframe contains all of the drawing time logs, all data collected during experiment."""
+    """This dataframe contains all of the drawing time logs, all data collected during experiment.
+    
+    Available columns:
+    - "Participant name"
+    - "Participant age"
+    - "Participant handedness"
+    - "Device"
+    - "Test mode"
+    - "Logging timestamp"
+    - "Function ID"
+    - "Function difficulty"
+    - "Function projection"
+    - "Drawing time"
+    - "Error approx"
+    - "Expert Mouse User"
+    - "Expert Graphic Tablet User"
+    """
     test0data: pd.DataFrame
     """A copy of data containing logs only from the first part of the experiment."""
     test1data: pd.DataFrame
