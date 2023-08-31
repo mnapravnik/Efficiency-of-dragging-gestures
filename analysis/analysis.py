@@ -25,7 +25,7 @@ from statutils import getRegressionCoefficients, normalErrorsAssumption, homosce
 class Analysis:
     _a: AnalysisArgs
     _iod: IodHandler
-    _dt: DrawingTimesHandler
+    dt: DrawingTimesHandler
 
     MAX_AVG_DRAW_TIME: float
     MIN_AVG_DRAW_TIME: float
@@ -34,7 +34,7 @@ class Analysis:
     def __init__(self, args: AnalysisArgs, logs: Logs = None) -> None:
         self._a = args
         self._iod = IodHandler(args)
-        self._dt = DrawingTimesHandler(args=args, logs=logs)
+        self.dt = DrawingTimesHandler(args=args, logs=logs)
 
         # for plot xy ranges
         self.MAX_AVG_DRAW_TIME = round(max(self.getAvgsByFilter(self._a.PROJECTIONS, self._a.FUNC_IDS, self._a.DEVICES, self._a.TEST_MODES)[0]))
@@ -49,7 +49,7 @@ class Analysis:
             for device in devices:
                 for projection in projections:
                     for funcId in funcIds:
-                        avg = self._dt.getAvgForFunc(projection, funcId, device, experimentMode)
+                        avg = self.dt.getAvgForFunc(projection, funcId, device, experimentMode)
                         times.append(avg)
                         iods.append(self._iod.getIodForFunc(projection, experimentMode, funcId))
                         # use this if you want to get ALL drawing times paired with iods

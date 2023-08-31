@@ -55,3 +55,29 @@ class DrawingTimesHandler:
             raise NotImplementedError(f'Central tendency of type {self._a.centralTendency} not supported!')        
         return avg #* 1000 # transform to milliseconds
 
+
+    def get_mean_drawtime_for_participant(self, participantname:str, device:DevicesType, projections:typing.List[ProjectionsType]):
+        """Will return the mean drawing time across all curves (trajectories),
+        drawn using the specified device and in specified projection(s).
+
+        Args:
+            participantname (str): Name of the participant.
+            device (DevicesType): Device used to draw the curve (trajcetory).
+            projections (typing.List[ProjectionsType]): Across which projections should the mean drawing
+                times be calculated. Can contain both Cartesian and Polar projection, just the Polar
+                or just the Cartesian projection.
+
+        Returns:
+            tuple: the first element is the drawing time mean, the second element is
+                the standard deviation.
+        """
+        # gather all logs from which to calculate mean drawing time
+        participant_logs = self._l.df.query(
+            f'`Participant name` == "{participantname}" and ' +
+            f'`Device` == "{device}" and ' +
+            f'`Function projection` in {projections}'
+        )
+
+        mean = participant_logs['Drawing time'].mean()
+        std = participant_logs['Drawing time'].std()
+        return (mean, std)
