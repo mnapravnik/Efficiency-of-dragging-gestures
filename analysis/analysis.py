@@ -7,7 +7,7 @@ from analysisargs import TestModesType
 import numpy as np
 import typing
 from iod import IodHandler
-from drawingtimes import DrawingTimesHandler
+from drawingtimes import DrawingHandler
 from scipy.stats import shapiro as normal_shapiro
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -25,7 +25,7 @@ from statutils import getRegressionCoefficients, normalErrorsAssumption, homosce
 class Analysis:
     _a: AnalysisArgs
     _iod: IodHandler
-    dt: DrawingTimesHandler
+    dt: DrawingHandler
 
     MAX_AVG_DRAW_TIME: float
     MIN_AVG_DRAW_TIME: float
@@ -34,7 +34,7 @@ class Analysis:
     def __init__(self, args: AnalysisArgs, logs: Logs = None) -> None:
         self._a = args
         self._iod = IodHandler(args)
-        self.dt = DrawingTimesHandler(args=args, logs=logs)
+        self.dt = DrawingHandler(args=args, logs=logs)
 
         # for plot xy ranges
         self.MAX_AVG_DRAW_TIME = round(max(self.getAvgsByFilter(self._a.PROJECTIONS, self._a.FUNC_IDS, self._a.DEVICES, self._a.TEST_MODES)[0]))

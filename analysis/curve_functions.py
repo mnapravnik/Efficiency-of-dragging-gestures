@@ -110,9 +110,10 @@ class FunctionProvider:
 
     ##### Polar Coordinates #####
     def function_curve_d1_t5(self):
-        # f = self.make_sin_rosette(1.8, 0.3, 2)
-        # f = 2 * (self.x ** 0)
-        f = self.make_spiral(1.8, 0)
+        # these two were at one point swapped
+        # but now they're restored to what they were before exp
+        f = self.make_sin_rosette(1.8, 0.3, 2)
+        # f = self.make_spiral(1.8, 0)
         return f
 
     ##### Polar Coordinates #####
@@ -122,8 +123,10 @@ class FunctionProvider:
 
     ##### Polar Coordinates #####
     def function_curve_d1_t7(self):
-        f = self.make_sin_rosette(1.8, 0.3, 2)
-        # f = self.make_spiral(1.8, 0)
+        # these two were at one point swapped
+        # but now they're restored to what they were before exp
+        # f = self.make_sin_rosette(1.8, 0.3, 2)
+        f = self.make_spiral(1.8, 0)
         return f
     
     ##### Polar Coordinates #####
@@ -243,8 +246,43 @@ class FunctionProvider:
     def make_spiral(self, a, b):
         return a + b * self.x
 
+def get_difficulty_and_task_from_func_id(func_id):
+    """ Returns a tuple where first element is difficulty,
+    and second element is task id. These two can be used for
+    retrieving functions and function Ys, from Functionprovider.
+    """
+    difficulty = int(func_id / 2)
+    task = int(func_id % 2)
+    return (difficulty, task)
+
+def get_test_index_from_test_mode_and_projection(test_mode:int, projection:str):
+    """_summary_
+
+    Args:
+        test_mode (int): Either 0 or 1
+        projection (str): Either "Polar" or "Cartesian"
+
+    Returns:
+        Calculated test_index so it can be used for
+        retrieving function Ys
+    """
+    retval = 0
+    if projection == 'Cartesian':
+        if test_mode == 0:
+            retval = 0
+        else:
+            retval = 1
+    elif projection == 'Polar':
+        if test_mode == 0:
+            retval = 2
+        else:
+            retval = 3
+    return retval
+
+
 def is_cartesian(test_index):
     return test_index == 0 or test_index == 1
+
 
 """
 # Testing area
