@@ -9,6 +9,7 @@ from analysisargs import DevicesType
 from analysisargs import FuncIdsType
 from analysisargs import TestModesType
 import numpy as np
+import typing
 
 
 def get_error(
@@ -109,12 +110,45 @@ def get_error(
         print(f'Total error in {i+1}-th repetition:', np.sum(errors['dist']), ', average:', np.mean(errors['dist']))
         retval.append(errors)
     return retval
-    
-# def get_effective_width(self, errors: typing.List[float]):
 
+
+def get_effective_width(errors: typing.List[float]):
+    """Get W_e, effective width of the target (as proposed by Fitts)
+
+    Args:
+        errors (typing.List[float]): The calculated errors of a pass
+            through a curve.
+
+    Returns:
+        float: a single floating point number desccribing the effective width.
+    """
+    retval = None
+    
+    # mean_err = np.mean(errors)
+    std_err = np.std(errors)
+    # effective width according to fitts
+    W_e = std_err * 4.133
+
+    retval = W_e
+    return retval
 
         
-def get_dist_between_points(x_a, y_a, x_b,  y_b, projection: ProjectionsType):
+def get_dist_between_points(x_a: float, y_a: float, x_b: float,  y_b: float, projection: ProjectionsType):
+    """Get distance between points A and B,
+    which were plotted in Polar or Cartesian coordinates.
+
+    Args:
+        x_a (float): X coordinate of point A.
+        y_a (float): Y coordinate of point A.
+        x_b (float): X coordinate of point B.
+        y_b (float): Y coordinate of point B.
+        projection (ProjectionsType): in which projection were
+            the coordinates plotted.
+
+    Returns:
+        float: a single floating points number containing the distance between points
+            A and B.
+    """
     if projection == 'Cartesian':
         c = (x_a - x_b)**2 + (y_a - y_b)**2
     else:
@@ -122,7 +156,7 @@ def get_dist_between_points(x_a, y_a, x_b,  y_b, projection: ProjectionsType):
         phi_a, r_a = x_a, y_a
         phi_b, r_b = x_b, y_b
         c = r_a**2 + r_b**2 - 2*r_a*r_b*np.cos(phi_b-phi_a)
-    dist = np.sqrt(c)
+    dist: float = np.sqrt(c)
     return dist 
 
 def get_drawn_coordinates(
