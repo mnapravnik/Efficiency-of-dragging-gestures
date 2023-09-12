@@ -25,6 +25,10 @@ X_RANGE = {
     "start": 0,
     "end": 2 * math.pi
 }
+"""
+Dict with two keys: "start" and "end".
+Values are floating point numbers.
+"""
 
 CARTESIAN_PLOT_LIMITS = {
     "x": [X_RANGE["start"] - 0.5, X_RANGE["end"] + 0.5],

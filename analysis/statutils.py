@@ -259,3 +259,26 @@ def checkLinearAssumption(model, x, y, axes, plotTextSize=18, xy_minmax=(0, 5)):
     return axes
 
 
+def calculate_riemann_integral(f, x0:float, x1:float, numpoints:int):
+    """Calculate approximatino of an integral.
+
+    Args:
+        f (sympy lamdified function): function under which to calculate
+            integral approx.
+        x0 (float): starting point for integral calculation.
+        x1 (float): ending point for integral calculation.
+        numpoints (int): how many points to generate when using Riemann sum.
+
+    Returns:
+        float: the approximate integral under the curve `f`.
+    """
+        
+    integral_approx = 0
+    # distance between two points (will be very small)
+    delta = (x1 - x0) / numpoints
+    i = 0
+    for i in range(numpoints):
+        # Riemann sum
+        integral_approx += abs(f(x0) * delta)
+        x0 += delta
+    return integral_approx

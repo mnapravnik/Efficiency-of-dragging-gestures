@@ -8,24 +8,19 @@ ProjectionsType = typing.Literal['Cartesian', 'Polar']
 FuncIdsType = typing.Literal[0, 1, 2, 3, 4, 5]
 DevicesType = typing.Literal['Mouse', 'Graphic tablet']
 TestModesType = typing.Literal[0, 1]
+IodsType = typing.Literal[
+    'length',
+    'length:width',
+    'kappa',
+    'length:(width*r^(1:3))',
+    'length:(width+1:r)',
+    'length:(width+1:r+width*1:r)',
+    'tmp',
+]
 
 
 class AnalysisArgs:
-
-    """This variable holds ALL IoDs."""
-    funcIoDs = {
-        #'kappa*length': json.load(open('index_of_difficulty-kappa*length.json')),
-        'length': json.load(open('iods/index_of_difficulty-' + 'length' +'.json')),
-        'kappa': json.load(open('iods/index_of_difficulty-' + 'kappa' +'.json')),
-        #'log(kappa+length)': json.load(open('iods/index_of_difficulty-log(kappa+length).json')),
-        'log(length:alpha+kappa+1)': json.load(open('iods/index_of_difficulty-log(length:alpha+kappa+1).json')),
-        'length:w+kappa': json.load(open('iods/index_of_difficulty-length:alpha+kappa.json')),
-        'length:w': json.load(open('iods/index_of_difficulty-length:alpha.json')),
-        'tmp': json.load(open('iods/index_of_difficulty-tmp.json')),
-        # 'w': json.load(open('iods/index_of_difficulty-w.json')),
-    }
-
-    iodModelName: typing.Literal['length', 'kappa', 'tmp'] = 'tmp'
+    iodModelName: IodsType = 'tmp'
     centralTendency: typing.Literal['mean', 'median'] = 'mean'
     plotTextSize = 18
 
@@ -33,6 +28,12 @@ class AnalysisArgs:
     FUNC_IDS: typing.List[FuncIdsType] = [0, 1, 2, 3, 4, 5]
     DEVICES: typing.List[DevicesType] = ['Mouse', 'Graphic tablet']
     TEST_MODES: typing.List[TestModesType] = [0, 1]
+
+    npoints: int = 5000
+    """
+    How many points (coordinates) to generate for intergal calculate (ID)
+    and for error calculation etc.
+    """
 
     useCroatian: bool=False
 
