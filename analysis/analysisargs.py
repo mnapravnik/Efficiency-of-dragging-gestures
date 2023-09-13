@@ -37,6 +37,9 @@ class AnalysisArgs:
 
     useCroatian: bool=False
 
+    save_figures: bool=False
+    """If True, will save any plots made during analysis."""
+
 class Logs:
     df: pd.DataFrame
     """This dataframe contains all of the drawing time logs, all data collected during experiment.

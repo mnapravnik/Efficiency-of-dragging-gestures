@@ -7,3 +7,6 @@ movement_integrals.json
 # ignore pycache
 __pycache__/*
 *.pyc
+
+# ignore anything beginning with an underscore
+_*

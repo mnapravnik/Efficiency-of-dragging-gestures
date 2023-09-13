@@ -119,7 +119,7 @@ class IodHandler:
             alpha *= dp.POLAR_UNIT_LENGTH_IN_INCH
         
         iod = None
-        radius = 1 / (0.0000001 + np.abs(kappa))
+        radius = 1 / (1 + np.abs(kappa))
         if iod_model_name == 'length':
             iod = length
         elif iod_model_name == 'kappa':
@@ -128,11 +128,11 @@ class IodHandler:
             iod = length / alpha
         elif iod_model_name == 'length:(width*r^(1:3))':
             # this below is taken from the paper "Modeling user performance on Curved Constrained Paths"
-            iod = length / (alpha * (radius+1) ** (1/3))
+            iod = length / (alpha * radius ** (1/3))
         elif iod_model_name == 'length:(width+1:r)':
-            iod = length / (alpha + 1/(radius+1))
+            iod = length / (alpha + 1/radius)
         elif iod_model_name == 'length:(width+1:r+width*1:r)':
-            iod = length / (alpha + 1/(radius+1) + alpha * 1 / (radius+1))
+            iod = length / (alpha + 1/radius + alpha * 1 / radius)
         else:
             raise ValueError(f'Index of difficulty by the name of "{iod_model_name}" not implemented!')
 

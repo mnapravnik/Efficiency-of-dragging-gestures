@@ -20,7 +20,7 @@ import pandas as pd
 import sklearn.metrics as metrics
 from sklearn.linear_model import LinearRegression
 from statutils import checkLinearAssumption, autocorrelationAssumption, getBasePlotTitle, printRegressionModelMetrics
-from statutils import getRegressionCoefficients, normalErrorsAssumption, homoscedasticityAssumption
+from statutils import getRegressionCoefficients, normalErrorsAssumption, homoscedasticityAssumption, getMseAndRmspe
 
 class Analysis:
     _a: AnalysisArgs
@@ -147,36 +147,82 @@ class Analysis:
         
         
     def trainRegressionModelThenValidate(self, projections, device):
-        print("\n\nSKLEARN")
-        MAX_IOD = self._iod.getMaxIodForPlot()
         (width, height) = 12, 5
 
         figure, axes = plt.subplots(1)
         figure.set_size_inches(width, height)
-        
         reg = self.getRegressionModel(projections, [0], device, axes)
         title = getBasePlotTitle(projections, device, [0], args=self._a)
     #     axes.set_title('') # remove the default title
-        axes.set_title(title) # remove the default title
-        # saveFigure(linearRegressionsFolderPath + title.replace(' ', '_').replace('\n', ''))
+        axes.set_title(title)
+        # save the training reg
+        self.save_figure(fig=figure, filename=title.replace(' ', '_').replace('\n', ''))
         plt.show(figure)
+        plt.close(figure)
+        self.save_results(reg_model=reg, devices=device, projections=projections, test_modes=[0])
         
         figure, axes = plt.subplots(1)
         figure.set_size_inches(width, height)
-    
         self.validateRegressionModel(reg, projections, [1], device, axes)
         title = getBasePlotTitle(projections, device, [1], args=self._a)
     #     axes.set_title('') # remove the default title
-        axes.set_title(title) # remove the default title
-
-        # figure.tight_layout(pad=2)
-        # saveFigure(linearRegressionsFolderPath + title.replace(' ', '_').replace('\n', ''))
-        
+        axes.set_title(title)
+        # save the validation reg
+        self.save_figure(fig=figure, filename=title.replace(' ', '_').replace('\n', ''))
         plt.show(figure)
-        
-        # print("\n\nSTATSMODELS")
-        # x, y = getDataForRegression(projections, [0], device)
-        # constx = sm.add_constant(x)
-        # reg = sm.OLS(y, constx).fit()
-        # print(reg.summary())
+        plt.close(figure)
+        self.save_results(reg_model=reg, devices=device, projections=projections, test_modes=[1])
+
+    def get_workdir_folderpath(self):
+        folderpath = os.path.join('_analysis_workdir', self._a.iodModelName)
+        os.makedirs(folderpath, exist_ok=True)
+        return folderpath
+    
+    def get_results_filepath(self):
+        workdir = self.get_workdir_folderpath()
+        resultspath = os.path.join(workdir, 'results.csv')
+        return resultspath
+
+    def save_figure(self, fig, filename: str):
+        if (self._a.save_figures is True):
+            folderpath = self.get_workdir_folderpath()
+            fullfigname = os.path.join(folderpath, filename)
+            fig.savefig(fullfigname)
+
+    def save_results(
+            self,
+            reg_model: LinearRegression,
+            devices: typing.List[DevicesType],
+            projections: typing.List[ProjectionsType],
+            test_modes: typing.List[TestModesType]
+        ):
+        x, y_true = self.getDataForRegression(projections=projections, experimentModes=test_modes, device=devices)
+        a_coef, b_coef = getRegressionCoefficients(reg_model)
+        mse, rmspe = getMseAndRmspe(reg=reg_model, x=x, y=y_true)
+        r2 = reg_model.score(x, y_true)
+        resultspath = self.get_results_filepath()
+        if os.path.exists(resultspath):
+            df = pd.read_csv(resultspath, index_col='entry_id')
+        else:
+            df = pd.DataFrame(columns=['modelname', 'r2', 'mse', 'rmspe', 'a_coef', 'b_coef', 'device', 'projection', 'test_mode', 'central_tendency', 'entry_id'])
+            df.set_index('entry_id', inplace=True)
+
+        # init an empty row
+        entry_id = len(df)
+        df.loc[entry_id] = 0
+        # then populate this row with data
+        df.loc[entry_id, 'modelname'] = self._a.iodModelName
+        df.loc[entry_id, 'central_tendency'] = self._a.centralTendency
+        df.loc[entry_id, 'r2'] = r2
+        df.loc[entry_id, 'mse'] = mse
+        df.loc[entry_id, 'rmspe'] = rmspe
+        df.loc[entry_id, 'device'] = str(devices)
+        df.loc[entry_id, 'projection'] = str(projections)
+        df.loc[entry_id, 'a_coef'] = a_coef
+        df.loc[entry_id, 'b_coef'] = b_coef
+        df.loc[entry_id, 'test_mode'] = str(test_modes)
+
+        df.drop_duplicates(inplace=True, ignore_index=True, subset=['projection', 'device', 'test_mode', 'central_tendency'], keep='last')
+        df.to_csv(resultspath, index_label='entry_id')
+
         
