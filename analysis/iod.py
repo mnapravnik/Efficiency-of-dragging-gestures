@@ -81,7 +81,8 @@ class IodHandler:
             task: int,
             test_index: int,
             iod_model_name: IodsType = None,
-            lambdified:bool=True
+            lambdified:bool=True,
+            width:float = 1,
         ):
         """Get equation for a trajectory's index of difficulty.
 
@@ -97,6 +98,9 @@ class IodHandler:
                 will be parsed from AnalysisArgs (given in init). Defaults to None.
             lambdified (bool, optional): whether to return the equation
                 in its sympy lambdified form. Defaults to True.
+            width (float, optional): width of the line. Use this, for example,
+                to calculate throughput by switching this with 'Effective Width'.
+                Defaults to 1.
 
         Raises:
             ValueError: if index of difficulty model is not implemented.
@@ -110,7 +114,7 @@ class IodHandler:
         kappa = self._fp.get_function_curvature(difficulty, task, test_index)
         length = self._fp.get_function_length(difficulty, task, test_index)
         # alpha: width of the line.
-        alpha = 1
+        alpha = width
         if(is_cartesian(test_index=test_index)):
             length = length * dp.CARTESIAN_UNIT_LENGTH_IN_INCH
             alpha *= dp.CARTESIAN_UNIT_LENGTH_IN_INCH

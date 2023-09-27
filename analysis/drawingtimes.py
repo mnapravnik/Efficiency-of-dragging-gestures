@@ -81,3 +81,38 @@ class DrawingHandler:
         mean = participant_logs['Drawing time'].mean()
         std = participant_logs['Drawing time'].std()
         return (mean, std)
+
+    def get_drawtime_for_participant_and_curve_on_device(
+        self,
+        participantname: str,
+        device: DevicesType,
+        projection: ProjectionsType,
+        test_mode: TestModesType,
+        func_id: FuncIdsType,
+    ):
+        """Will calculate MT for only one specific curve of participant.
+
+        Args:
+            participantname (str): which participant is in question.
+            device (DevicesType): MT for which device is of interest
+            projection (ProjectionsType): projection in which the curve was drawn
+            test_mode (TestModesType): the test mode of the experiment
+            func_id (FuncIdsType): identifier of the function within the experiment and projection
+
+        Returns:
+            tuple: first element is mean, second element is stdev
+        """
+
+        participant_logs = self._l.df.query(
+            f'`Participant name` == "{participantname}" and ' +
+            f'`Device` == "{device}" and ' +
+            f'`Function projection` == "{projection}" and'
+            f'`Test mode` == {test_mode} and'
+            f'`Function ID` == {func_id}'
+        )
+        # this will contain two values, because each curve was repeated twice!
+        mean = participant_logs['Drawing time'].mean()
+        std = participant_logs['Drawing time'].std()
+        return (mean, std)
+
+        

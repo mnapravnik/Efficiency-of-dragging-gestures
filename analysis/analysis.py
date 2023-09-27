@@ -62,9 +62,11 @@ class Analysis:
         # plot the linearity assumption separately
         figure, axes = plt.subplots(1)
         figure.set_size_inches(6, 6)
-        checkLinearAssumption(reg, x, y, axes)
+        
+        checkLinearAssumption(reg, x, y, axes, xy_minmax=(self.MIN_AVG_DRAW_TIME, self.MAX_AVG_DRAW_TIME))
         # reimplement saving figures
         # saveFigure(linearRegressionsFolderPath + "_assumptions_linearity_" + title.replace(' ', '_').replace('\n', ''))
+        plt.show(figure)
         plt.close(figure)
         
         figure, axes = plt.subplots(1, 2)
@@ -82,6 +84,7 @@ class Analysis:
         figure.subplots_adjust(top=0.85)
         
         # saveFigure(linearRegressionsFolderPath + "_assumptions_residuals_" + title.replace(' ', '_').replace('\n', ''))
+        plt.show(figure)
         plt.close(figure)
 
 
@@ -93,6 +96,8 @@ class Analysis:
 
     # training and retrieving the model 
     def getRegressionModel(self, projections, experimentModes, device, axes):
+        print('\n\n##### TRAINING #####')
+
         x, y = self.getDataForRegression(projections, experimentModes, device)
         reg = LinearRegression().fit(x, y)
         title = getBasePlotTitle(projections, device, experimentModes, args=self._a)
@@ -137,12 +142,14 @@ class Analysis:
         )
         
 
-    def validateRegressionModel(self, reg, projections, experimentModes, device, axes):  
+    def validateRegressionModel(self, reg, projections, experimentModes, device, axes):
+        print('\n\n##### VALIDATION #####')
+        
         x, y = self.getDataForRegression(projections, experimentModes, device)
         title = getBasePlotTitle(projections, device, experimentModes, args=self._a)
         
-        self.testRegressionAssumptions(reg, x, y, title)
         self.plotDataAndReg(reg, x, y, title, axes)
+        self.testRegressionAssumptions(reg, x, y, title)
         printRegressionModelMetrics(reg, x, y)
         
         
@@ -160,7 +167,7 @@ class Analysis:
         plt.show(figure)
         plt.close(figure)
         self.save_results(reg_model=reg, devices=device, projections=projections, test_modes=[0])
-        
+
         figure, axes = plt.subplots(1)
         figure.set_size_inches(width, height)
         self.validateRegressionModel(reg, projections, [1], device, axes)

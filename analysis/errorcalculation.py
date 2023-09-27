@@ -12,6 +12,44 @@ import numpy as np
 import typing
 
 
+class DrawingErrors:
+    # metadata of the error/drawing
+    participantname: str
+    device: DevicesType
+    projection: ProjectionsType
+    test_mode: TestModesType
+    func_id: FuncIdsType
+
+    # actual drawing data and errors
+    # realxs = Real X cordinates
+    # dists at i-th place is distance between drawn point and it's nearest real point
+    drawnxs: typing.List[float]
+    """an array of X coordinates drawn"""
+    drawnys: typing.List[float]
+    """an array of Y coordinates drawn. 'drawnx' and 'drawny' are coordinate pairs"""
+    realxs: typing.List[float]
+    """an array of X coordinates of points which are nearest to the i-th drawn point"""
+    realys: typing.List[float]
+    """an array of Y coordinates, 'realx' and 'realy' make a coordinate point which
+        lies on the real function trajectory"""
+    dists: typing.List[float]
+    """distances between the real and the drawn points"""
+
+    def __init__(self, participantname: str, device: DevicesType, proj: ProjectionsType, test_mode:TestModesType, func_id: FuncIdsType) -> None:
+        self.participantname = participantname
+        self.device = device
+        self.projection = proj
+        self.test_mode = test_mode
+        self.func_id = func_id
+
+        # init empty arrays
+        self.realxs = []
+        self.realys = []
+        self.drawnxs = []
+        self.drawnys = []
+        self.dists = []
+
+
 def get_error(
     participantname: str,
     device: DevicesType,
@@ -38,13 +76,7 @@ def get_error(
     Returns:
         An array where each item containes calculated error for i-th drawing.
         If a user drew the same curve twice, then this will have two elements.
-        Each element is a dictionary with the following attributes:
-        - 'drawnx' - an array of X coordinates drawn
-        - 'drawny' - an array of Y coordinates drawn. 'drawnx' and 'drawny' are coordinate pairs
-        - 'realx' - an array of X coordinates of points which are nearest to the i-th drawn point
-        - 'realy' - an array of Y coordinates, 'realx' and 'realy' make a coordinate point which
-            lies on the real function trajectory
-        - 'dist' - distance between the real and the drawn point
+        Each element is a DrawingErrors object.
     """
     # When calculating errors, we generate N points distributed equally across X axis
     # then we go along the drawing curve for each of the N points, and calculate which
@@ -90,11 +122,11 @@ def get_error(
     # once we've established the proper coordinates were fetched, now we go onto
     # calculating the actual error
     # for each drawn point, search for the nearest real point
-    retval = []
+    retval: typing.List[DrawingErrors] = []
     for i, rpt in enumerate(drawnpoints):
         # rpt = number of repeats
         # i.e. we're iterating over each drawing repeat
-        errors = dict({'realx': [], 'realy': [], 'drawnx': [], 'drawny': [], 'dist': []})
+        errors = DrawingErrors(participantname=participantname, proj=projection, func_id=func_id, test_mode=test_mode, device=device)
         for x_a, y_a in zip(rpt['x'], rpt['y']):
             # this will be an array of distance from drawn point A to
             # ALL real curve points
@@ -102,12 +134,12 @@ def get_error(
             # chose whichever point was the nearest, and calculate
             # the error as distance to that point
             nearest_point_idx = np.argmin(dists)
-            errors['realx'].append(realxpoints[nearest_point_idx])
-            errors['realy'].append(realypoints[nearest_point_idx])
-            errors['drawnx'].append(x_a)
-            errors['drawny'].append(y_a)
-            errors['dist'].append(np.min(dists))
-        print(f'Total error in {i+1}-th repetition:', np.sum(errors['dist']), ', average:', np.mean(errors['dist']))
+            errors.realxs.append(realxpoints[nearest_point_idx])
+            errors.realys.append(realypoints[nearest_point_idx])
+            errors.drawnxs.append(x_a)
+            errors.drawnys.append(y_a)
+            errors.dists.append(np.min(dists))
+        print(f'Total error in {i+1}-th repetition:', np.sum(errors.dists), ', average:', np.mean(errors.dists))
         retval.append(errors)
     return retval
 
